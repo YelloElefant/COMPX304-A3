@@ -22,9 +22,13 @@ public class SecureMessageExchange {
 
       System.out.println("Matching ratio: " + (matchingRatio * 100) + "%");
 
-      int keyLength = message.length();
-      if (session.aliceKey.length() < keyLength) {
-         System.err.println("Key too short! Needed: " + keyLength);
+      System.out.println("Session keys:");
+      System.out.println("Alice's key: " + session.aliceKey);
+      System.out.println("Bob's key:   " + session.bobKey);
+
+      int keyLength = session.aliceKey.length();
+      if (matchingRatio < 0.25) {
+         System.out.println("Not enough matching bits for secure communication.");
          return;
       }
 
