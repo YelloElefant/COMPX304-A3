@@ -1,4 +1,10 @@
 public class XORCipher {
+   private static boolean verbose = false;
+
+   public static void setVerbose(boolean v) {
+      verbose = v;
+   }
+
    public static String encrypt(String message, String key) {
       validateInput(message, key);
       String repeatedKey = repeatKey(key, message.length());
@@ -7,7 +13,10 @@ public class XORCipher {
       for (int i = 0; i < message.length(); i++) {
          int bit = message.charAt(i) - '0';
          int keyBit = repeatedKey.charAt(i) - '0';
-         result.append(bit ^ keyBit);
+         int xor = bit ^ keyBit;
+         result.append(xor);
+         if (verbose)
+            System.out.println("[XORCipher] bit: " + bit + " ^ " + keyBit + " = " + xor);
       }
 
       return result.toString();

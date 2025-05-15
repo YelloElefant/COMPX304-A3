@@ -2,6 +2,12 @@
 import java.util.*;
 
 public class QKE {
+   private static boolean verbose = false;
+
+   public static void setVerbose(boolean v) {
+      verbose = v;
+   }
+
    public static class QKESession {
       public String aliceKey;
       public String bobKey;
@@ -17,6 +23,9 @@ public class QKE {
       Random rand = new Random();
 
       // Alice prepares qubits
+      if (verbose) {
+         System.out.println("[QKE] Alice is preparing qubits...");
+      }
       for (int i = 0; i < numQubits; i++) {
          int value = rand.nextBoolean() ? 1 : 0;
          char basis = rand.nextBoolean() ? '+' : 'x';
@@ -25,6 +34,9 @@ public class QKE {
       }
 
       // Bob measures qubits
+      if (verbose) {
+         System.out.println("[QKE] Bob is measuring qubits...");
+      }
       for (int i = 0; i < numQubits; i++) {
          char basis = rand.nextBoolean() ? '+' : 'x';
          bobBases.add(basis);
@@ -38,9 +50,14 @@ public class QKE {
 
       for (int i = 0; i < numQubits; i++) {
          if (aliceBases.get(i) == bobBases.get(i)) {
-            aliceKey.append(qubits.get(i).getValue());
-            bobKey.append(bobMeasurements.get(i));
+            int aVal = qubits.get(i).getValue();
+            int bVal = bobMeasurements.get(i);
+            aliceKey.append(aVal);
+            bobKey.append(bVal);
             matches++;
+            if (verbose) {
+               System.out.println("[QKE] Match at " + i + ": basis='" + aliceBases.get(i) + "', value=" + aVal);
+            }
          }
       }
 
@@ -48,6 +65,11 @@ public class QKE {
       session.aliceKey = aliceKey.toString();
       session.bobKey = bobKey.toString();
       session.matchingBits = matches;
+      if (verbose) {
+         System.out.println("[QKE] Total matching bits: " + matches);
+         System.out.println("[QKE] Alice Key: " + session.aliceKey);
+         System.out.println("[QKE] Bob Key:   " + session.bobKey);
+      }
       return session;
    }
 }
