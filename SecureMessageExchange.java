@@ -1,34 +1,31 @@
 public class SecureMessageExchange {
    public static void main(String[] args) {
-      int numQubits = 16;
-      String message = "11010001000101010110100111101100101100101"; // 16-bit message
+      int numQubits = 256;
+      String message = "0100110101100101"; // Example 16-bit binary message
 
       System.out.println("Performing QKE with " + numQubits + " qubits...");
       QKE.QKESession session = QKE.performQKE(numQubits);
 
-      // After QKE.performQKE()
       double matchingRatio = (double) session.matchingBits / numQubits;
 
-      if (matchingRatio < 0.25) { // Threshold: 25% matching
-         System.err.println("Warning: Low matching ratio (" + (matchingRatio * 100) + "%). Possible eavesdropping.");
-      } else if (session.aliceKey.length() < numQubits) {
-         System.err.println("Need more qubits to generate " + numQubits + "-bit key.");
+      System.out.println("Matching ratio: " + (matchingRatio * 100) + "%");
+      System.out.println("Alice Key: " + session.aliceKey);
+      System.out.println("Bob Key:   " + session.bobKey);
+
+      int keyLength = message.length();
+      if (session.aliceKey.length() < keyLength) {
+         System.err.println("Key too short! Needed: " + keyLength);
+         return;
       }
 
-      System.out.println("Matching bases: " + session.matchingBits +
-            " (≈" + (session.matchingBits * 100 / numQubits) + "%)");
-      System.out.println("Alice's key: " + session.aliceKey);
-      System.out.println("Bob's key:   " + session.bobKey);
+      String encryptionKey = session.aliceKey.substring(0, keyLength);
+      String cipherText = XORCipher.encrypt(message, encryptionKey);
 
-      String key = session.aliceKey;
+      String decryptionKey = session.bobKey.substring(0, keyLength);
+      String plainText = XORCipher.decrypt(cipherText, decryptionKey);
 
-      System.out.println("\nEncrypting with key: " + key);
-      String encrypted = XORCipher.apply(message, key);
-      String decrypted = XORCipher.apply(encrypted, key);
-
-      System.out.println("Original:  " + message);
-      System.out.println("Encrypted: " + encrypted);
-      System.out.println("Decrypted: " + decrypted);
-      System.out.println("Success: " + message.equals(decrypted));
+      System.out.println("Original Message: " + message);
+      System.out.println("Encrypted Message: " + cipherText);
+      System.out.println("Decrypted Message: " + plainText);
    }
 }

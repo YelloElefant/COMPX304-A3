@@ -1,80 +1,53 @@
-import java.security.KeyException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
+
+import java.util.*;
 
 public class QKE {
-   private static final Random rand = new Random();
+   public static class QKESession {
+      public String aliceKey;
+      public String bobKey;
+      public int matchingBits;
+   }
 
    public static QKESession performQKE(int numQubits) {
-      // Alice's preparation
       List<QuBit> qubits = new ArrayList<>();
-      List<Integer> aliceBits = new ArrayList<>();
-      List<Integer> aliceBases = new ArrayList<>();
-      final int MIN_KEY_LENGTH = 1; // Minimum key length for security
+      List<Character> aliceBases = new ArrayList<>();
+      List<Character> bobBases = new ArrayList<>();
+      List<Integer> bobMeasurements = new ArrayList<>();
 
-      if (numQubits <= 0) {
-         throw new IllegalArgumentException("Number of qubits must be positive");
-      }
+      Random rand = new Random();
 
-      // Prepare qubits
+      // Alice prepares qubits
       for (int i = 0; i < numQubits; i++) {
-         int bit = rand.nextInt(2);
-         int basis = rand.nextInt(2);
-         qubits.add(new QuBit(bit, basis));
-         aliceBits.add(bit);
+         int value = rand.nextBoolean() ? 1 : 0;
+         char basis = rand.nextBoolean() ? '+' : 'x';
+         qubits.add(new QuBit(value, basis));
          aliceBases.add(basis);
       }
 
-      // Bob's measurement
-      List<Integer> bobBases = new ArrayList<>();
-      List<Integer> bobBits = new ArrayList<>();
-
-      for (QuBit qubit : qubits) {
-         int basis = rand.nextInt(2); // Bob chooses random basis
+      // Bob measures qubits
+      for (int i = 0; i < numQubits; i++) {
+         char basis = rand.nextBoolean() ? '+' : 'x';
          bobBases.add(basis);
-         bobBits.add(qubit.measure(basis));
+         bobMeasurements.add(qubits.get(i).measure(basis));
       }
 
-      // Basis reconciliation
-      List<Integer> matchingIndices = new ArrayList<>();
+      // Key extraction
+      StringBuilder aliceKey = new StringBuilder();
+      StringBuilder bobKey = new StringBuilder();
+      int matches = 0;
+
       for (int i = 0; i < numQubits; i++) {
-         if (aliceBases.get(i).equals(bobBases.get(i))) {
-            matchingIndices.add(i);
+         if (aliceBases.get(i) == bobBases.get(i)) {
+            aliceKey.append(qubits.get(i).getValue());
+            bobKey.append(bobMeasurements.get(i));
+            matches++;
          }
       }
 
-      // Build final key from matching indices
-      String aliceKey = matchingIndices.stream()
-            .map(aliceBits::get)
-            .map(String::valueOf)
-            .collect(Collectors.joining());
-
-      String bobKey = matchingIndices.stream()
-            .map(bobBits::get)
-            .map(String::valueOf)
-            .collect(Collectors.joining());
-
-      if (aliceKey.length() < MIN_KEY_LENGTH) {
-         throw new IllegalStateException(
-               "Generated key too short: " + aliceKey.length() +
-                     " bits (required: " + MIN_KEY_LENGTH + "). " +
-                     "Try increasing qubit count.");
-      }
-
-      return new QKESession(aliceKey, bobKey, matchingIndices.size());
-   }
-
-   public static class QKESession {
-      public final String aliceKey;
-      public final String bobKey;
-      public final int matchingBits;
-
-      public QKESession(String aliceKey, String bobKey, int matchingBits) {
-         this.aliceKey = aliceKey;
-         this.bobKey = bobKey;
-         this.matchingBits = matchingBits;
-      }
+      QKESession session = new QKESession();
+      session.aliceKey = aliceKey.toString();
+      session.bobKey = bobKey.toString();
+      session.matchingBits = matches;
+      return session;
    }
 }
