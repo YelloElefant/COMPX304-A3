@@ -13,8 +13,8 @@ public class QuBit {
       if (value != 0 && value != 1) {
          throw new IllegalArgumentException("Value must be 0 or 1.");
       }
-      if (basis != '+' && basis != 'x') {
-         throw new IllegalArgumentException("Basis must be '+' or 'x'.");
+      if (basis != '↺' && basis != '↑') {
+         throw new IllegalArgumentException("Basis must be '↺' (circular) or '↑' (linear).");
       }
       this.value = value;
       this.basis = basis;
@@ -23,8 +23,8 @@ public class QuBit {
    }
 
    public int measure(char measurementBasis) {
-      if (measurementBasis != '+' && measurementBasis != 'x') {
-         throw new IllegalArgumentException("Measurement basis must be '+' or 'x'.");
+      if (measurementBasis != '↺' && measurementBasis != '↑') {
+         throw new IllegalArgumentException("Measurement basis must be '↺' (circular) or '↑' (linear).");
       }
       int result;
       if (this.basis == measurementBasis) {
