@@ -1,3 +1,4 @@
+import java.security.KeyException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,6 +12,11 @@ public class QKE {
       List<QuBit> qubits = new ArrayList<>();
       List<Integer> aliceBits = new ArrayList<>();
       List<Integer> aliceBases = new ArrayList<>();
+      final int MIN_KEY_LENGTH = 1; // Minimum key length for security
+
+      if (numQubits <= 0) {
+         throw new IllegalArgumentException("Number of qubits must be positive");
+      }
 
       // Prepare qubits
       for (int i = 0; i < numQubits; i++) {
@@ -49,6 +55,13 @@ public class QKE {
             .map(bobBits::get)
             .map(String::valueOf)
             .collect(Collectors.joining());
+
+      if (aliceKey.length() < MIN_KEY_LENGTH) {
+         throw new IllegalStateException(
+               "Generated key too short: " + aliceKey.length() +
+                     " bits (required: " + MIN_KEY_LENGTH + "). " +
+                     "Try increasing qubit count.");
+      }
 
       return new QKESession(aliceKey, bobKey, matchingIndices.size());
    }
