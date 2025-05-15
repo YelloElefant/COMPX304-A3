@@ -1,3 +1,4 @@
+
 public class XORCipher {
    private static boolean verbose = false;
 
