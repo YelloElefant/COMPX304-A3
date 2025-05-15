@@ -22,7 +22,7 @@ public class SecureMessageExchange {
 
       System.out.println("Matching ratio: " + (matchingRatio * 100) + "%");
 
-      System.out.println("Session keys:");
+      System.out.println("-- Session keys --");
       System.out.println("Alice's key: " + session.aliceKey);
       System.out.println("Bob's key:   " + session.bobKey);
 
